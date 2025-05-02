@@ -1,0 +1,8 @@
+<h2>Generated {{ format|upper }} Script</h2>
+<pre style="background:#f4f4f4; padding:10px; border:1px solid #ccc; max-height:600px; overflow:auto;">
+<a class="btn btn-primary" href="{{ download_url }}">⬇ Download {{ format|upper }} Script</a>
+
+{{ script }}
+</pre>
+<br>
+<a href="{% url 'preview_file' file.id %}">← Back to Preview</a>

@@ -1,0 +1,38 @@
+{% load custom_filters %}
+<h2>Validation Results</h2>
+<table border="1">
+    <thead>
+        <tr>
+            {% for col in columns %}
+                <th>{{ col }}<br><small>{{ column_types|get_item:col }}</small></th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for row, row_errors in rows|zip_lists:errors %}
+            <tr>
+                {% for col in columns %}
+                    <td {% if row_errors|get_item:col %} style="background-color: #fdd;" {% endif %}>
+                        {{ row|get_item:col }}<br>
+                        {% if row_errors|get_item:col %}
+                            <small style="color:red;">{{ row_errors|get_item:col }}</small>
+                        {% endif %}
+                    </td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<form method="post" action="{% url 'generate_script' file.id %}">
+    {% csrf_token %}
+    <label for="format">Select Output Format:</label>
+    <select name="format" id="format">
+        <option value="sql">SQL Insert Script</option>
+        <option value="orm">Django ORM Code</option>
+        <option value="json">JSON Data</option>
+    </select>
+    <br><br>
+    <button type="submit">Generate Script</button>
+</form>
+
