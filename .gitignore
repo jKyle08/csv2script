@@ -1,0 +1,32 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# SQLite database
+db.sqlite3
+
+# Media uploads
+media/
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# VS Code settings
+.vscode/
+
+# PyCharm settings
+.idea/
+
+# mypy cache
+.mypy_cache/
+
+# pytest cache
+.cache/
+
+# Packaging
+*.egg-info/
+dist/
+build/
