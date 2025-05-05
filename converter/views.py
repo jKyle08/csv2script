@@ -48,6 +48,14 @@ def upload_file(request):
                     return JsonResponse({
                         'redirect_url': reverse('preview_file', kwargs={'file_id': uploaded_file.id, 'sheet_name': sheet_name})
                     })
+            elif extension == '.csv':
+                try:
+                    df = pd.read_csv(file_path)
+                    return JsonResponse({
+                        'redirect_url': reverse('preview_file', kwargs={'file_id': uploaded_file.id})
+                    })
+                except Exception as e:
+                    return JsonResponse({'error': f'Error reading CSV: {str(e)}'}, status=400)
 
             return JsonResponse({'error': 'Unsupported file format'}, status=400)
 
