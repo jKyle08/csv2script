@@ -1,8 +1,42 @@
-<h2>Generated {{ format|upper }} Script</h2>
-<pre style="background:#f4f4f4; padding:10px; border:1px solid #ccc; max-height:600px; overflow:auto;">
-<a class="btn btn-primary" href="{{ download_url }}">⬇ Download {{ format|upper }} Script</a>
+<!-- templates/converter/generated_script.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generated Script</title>
+    <style>
+        textarea {
+            width: 100%;
+            height: 400px;
+            font-family: monospace;
+            font-size: 14px;
+            white-space: pre;
+            overflow: auto;
+        }
+        .button-group {
+            margin-top: 20px;
+        }
+        .button-group a, .button-group button {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Generated {{ format|upper }} Script</h1>
 
-{{ script }}
-</pre>
-<br>
-<a href="{% url 'preview_file' file.id %}">← Back to Preview</a>
+    <div>
+        <textarea readonly>{{ script }}</textarea>
+    </div>
+
+    <div class="button-group">
+        <a href="{{ download_url }}" download>
+            <button>Download Script</button>
+        </a>
+        <a href="{% url 'upload_file' %}">
+            <button>Upload Another File</button>
+        </a>
+    </div>
+
+    <hr>
+    <p><strong>File:</strong> {{ file.file.name }}</p>
+</body>
+</html>

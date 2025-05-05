@@ -1,0 +1,29 @@
+<!-- templates/converter/sheet_select.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Select Sheet</title>
+</head>
+<body>
+    <h1>Select a Sheet</h1>
+
+    <p><strong>File:</strong> {{ file.file.name }}</p>
+
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+
+    <form method="post" action="{% url 'select_sheet' file.id %}">
+        {% csrf_token %}
+        <label for="sheet_name">Available Sheets:</label>
+        <select name="sheet_name" required>
+            {% for sheet in sheets %}
+                <option value="{{ sheet }}">{{ sheet }}</option>
+            {% endfor %}
+        </select>
+        <br><br>
+
+        <button type="submit">Continue</button>
+    </form>
+</body>
+</html>

@@ -1,17 +1,37 @@
 {% load custom_filters %}
 <!DOCTYPE html>
 <html>
-<head><title>Preview</title></head>
+<head>
+    <title>Preview</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 1em;
+        }
+        th, td {
+            border: 1px solid #aaa;
+            padding: 6px 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f0f0f0;
+        }
+        small {
+            font-size: 0.8em;
+            color: gray;
+        }
+    </style>
+</head>
 <body>
-    <h2>Preview of {{ file.file.name|cut:"uploads/" }} </h2>
+    <h2>Preview of {{ file.file.name|cut:"uploads/" }}</h2>
 
     {% if error %}
         <p style="color:red;">Error: {{ error }}</p>
     {% endif %}
 
     {% if sheet_names %}
-    <form method="get">
-        {% if sheet_names %}
+        <form method="get">
             <label for="sheet">Sheet:</label>
             <select name="sheet" id="sheet">
                 {% for name in sheet_names %}
@@ -20,46 +40,27 @@
                     </option>
                 {% endfor %}
             </select>
-        {% endif %}
-        &nbsp;&nbsp;
-        <label>
-            <input type="checkbox" name="trim" {% if trim %}checked{% endif %} onchange="this.form.submit()"> Trim Whitespace
-        </label>
-        <button type="submit">Apply</button>
-    </form>
+
+            &nbsp;&nbsp;
+            <label>
+                <input type="checkbox" name="trim" {% if trim %}checked{% endif %} onchange="this.form.submit()">
+                Trim Whitespace
+            </label>
+
+            <button type="submit">Apply</button>
+        </form>
     {% endif %}
 
-    <form method="post" action="{% url 'validate_file' file.id %}">
-        {% csrf_token %}
-        <h4>Column Validation Rules:</h4>
-        <table>
-            <tr>
-                {% for col in columns %}
-                    <th>
-                        {{ col }}<br>
-                        <small style="color: gray;">{{ column_types|get_item:col }}</small><br>
-                        <label>
-                            <input type="checkbox" name="required_columns" value="{{ col }}">
-                            Required
-                        </label>
-                    </th>
-                {% endfor %}
-            </tr>
-        </table>
-        <br>
-        <button type="submit">Validate Data</button>
-    </form>
-    
-
     {% if rows %}
-        <table border="1">
+        <h3>Data Preview</h3>
+        <table>
             <thead>
                 <tr>
                     {% for col in columns %}
-                    <th>
-                        {{ col }}<br>
-                        <small style="color: gray;">{{ column_types|get_item:col }}</small>
-                    </th>                    
+                        <th>
+                            {{ col }}<br>
+                            <small>{{ column_types|get_item:col }}</small>
+                        </th>
                     {% endfor %}
                 </tr>
             </thead>
@@ -74,5 +75,26 @@
             </tbody>
         </table>
     {% endif %}
+
+    <form method="post" action="{% url 'validate_file' file.id %}">
+        {% csrf_token %}
+        <h3>Column Validation Rules</h3>
+        <table>
+            <tr>
+                {% for col in columns %}
+                    <th>
+                        {{ col }}<br>
+                        <small>{{ column_types|get_item:col }}</small><br>
+                        <label>
+                            <input type="checkbox" name="required_columns" value="{{ col }}">
+                            Required
+                        </label>
+                    </th>
+                {% endfor %}
+            </tr>
+        </table>
+        <br>
+        <button type="submit">Validate Data</button>
+    </form>
 </body>
 </html>

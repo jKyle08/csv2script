@@ -1,12 +1,132 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
-<head><title>Upload File</title></head>
+<head>
+    <title>Upload File</title>
+    <link rel="stylesheet" href="{% static 'css/uikit.min.css' %}">
+</head>
 <body>
-    <h1>Upload CSV or Excel File</h1>
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Upload</button>
-    </form>
+
+<section class="uk-section uk-section-muted">
+    <div class="uk-container">
+
+        <h1 class="uk-heading-line uk-text-center"><span>CSV to Script</span></h1>
+
+        <div class="uk-card uk-card-default uk-card-hover uk-card-small uk-width-1-1@m uk-margin-auto">
+            <div class="uk-card-header">
+                <h3 class="uk-card-title">Upload a File</h3>
+            </div>
+
+            <div class="uk-card-body">
+                <div id="error-message"></div>
+
+                <form id="upload-form" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="uk-margin uk-flex uk-flex-center">
+                        <div class="uk-placeholder uk-text-center uk-border-rounded uk-height-small uk-width-large"
+                             style="cursor: pointer;" uk-form-custom="target: true">
+                            <input id="file" name="file" type="file" accept=".csv,.xls,.xlsx" required>
+                            <span uk-icon="icon: cloud-upload; ratio: 2"></span>
+                            <div class="uk-text-lead">Drag & Drop or <span class="uk-text-primary">Click to Upload</span></div>
+                            <div id="file-name" class="uk-margin-small-top uk-text-small uk-text-muted"></div>
+                        </div>
+                    </div>
+                    <div class="uk-margin uk-text-center">
+                        <button type="submit" class="uk-button uk-button-primary">Upload</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="uk-card-footer uk-text-center">
+                <small>Supported formats: .csv, .xls, .xlsx</small>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Modal container (filled via AJAX) -->
+<div id="modal-container"></div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{% static 'js/uikit.min.js' %}"></script>
+<script src="{% static 'js/uikit-icons.min.js' %}"></script>
+
+<script>
+    const fileInput = document.getElementById('file');
+    const fileNameDisplay = document.getElementById('file-name');
+
+    fileInput.addEventListener('change', () => {
+        const file = fileInput.files[0];
+        if (file) {
+            const allowedTypes = [
+                'text/csv',
+                'application/vnd.ms-excel',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            ];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Only CSV or Excel files are allowed!');
+                fileInput.value = '';
+                fileNameDisplay.innerText = '';
+                return;
+            }
+            fileNameDisplay.innerText = file.name;
+        } else {
+            fileNameDisplay.innerText = '';
+        }
+    });
+
+    // AJAX form submission
+    $('#upload-form').on('submit', function (e) {
+        e.preventDefault();
+        let formData = new FormData(this);
+
+        $.ajax({
+            url: "{% url 'upload_file' %}",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                // If modal HTML is returned, show modal
+                if (response.modal_html) {
+                    $('#modal-container').html(response.modal_html);
+                    UIkit.modal('#sheetSelectModal').show();
+                } else if (response.redirect_url) {
+                    // If a redirect URL is provided, redirect the user
+                    window.location.href = response.redirect_url;
+                }
+            },
+            error: function (xhr) {
+                $('#error-message').html(
+                    `<div class="uk-alert-danger" uk-alert>
+                        <a class="uk-alert-close" uk-close></a>
+                        <p>Error: ${xhr.responseJSON?.error || 'Something went wrong!'}</p>
+                    </div>`
+                );
+            }
+        });
+    });
+
+    // Handle sheet form submission inside modal
+    $(document).on('submit', '#sheet-form', function (e) {
+        e.preventDefault();
+
+        const form = $(this);
+        $.ajax({
+            url: form.attr('action'),
+            type: 'POST',
+            data: form.serialize(),
+            success: function (response) {
+                // Replace the page body with sheet preview or redirect
+                $('body').html(response);  // You can replace this with preview.html directly
+            },
+            error: function () {
+                alert("Failed to load sheet preview.");
+            }
+        });
+    });
+</script>
+
 </body>
 </html>

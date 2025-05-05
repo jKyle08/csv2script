@@ -1,0 +1,26 @@
+<!-- Select Sheet Modal -->
+
+<div id="sheetSelectModal" uk-modal>
+    <div class="uk-modal-dialog uk-modal-body">
+        <button class="uk-modal-close-default" type="button" uk-close></button>
+        
+        <h3 class="uk-modal-title">Select a Sheet</h3>
+        
+        <form id="sheet-form" method="post" action="{% url 'select_sheet' file.id %}">
+            {% csrf_token %}
+            
+            <p><strong>File:</strong> {{ base_name }}</p>
+
+            <label for="sheet_name">Available Sheets:</label>
+            <select id="sheet_name" name="sheet_name" class="uk-select" required>
+                {% for sheet in sheets %}
+                    <option value="{{ sheet }}">{{ sheet }}</option>
+                {% endfor %}
+            </select>
+
+            <div class="uk-margin-top uk-text-right">
+                <button class="uk-button uk-button-primary" type="submit">Continue</button>
+            </div>
+        </form>
+    </div>
+</div>
