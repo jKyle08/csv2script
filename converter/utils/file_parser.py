@@ -2,10 +2,6 @@ import os
 import pandas as pd
 
 def parse_file(file_path, sheet_name=None, trim_whitespace=False):
-    """
-    Reads Excel or CSV files and returns a pandas DataFrame.
-    Automatically detects file type and applies optional whitespace trimming.
-    """
     ext = os.path.splitext(file_path)[-1].lower()
     try:
         if ext in ['.xls', '.xlsx']:
@@ -15,14 +11,18 @@ def parse_file(file_path, sheet_name=None, trim_whitespace=False):
         else:
             raise ValueError(f"Unsupported file type: {ext}")
 
+        if df.empty:
+            print("Parsed DataFrame is empty.", flush=True)
+
         if trim_whitespace:
+            df.columns = df.columns.str.strip()
             df = df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
 
         return df
-
     except Exception as e:
-        print(f"Error parsing file: {e}")
+        print(f"Error parsing file: {e}", flush=True)
         return None
+
 
 def get_sheet_names(file_path):
     """

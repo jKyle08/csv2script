@@ -1,100 +1,119 @@
+{% load static %}
 {% load custom_filters %}
+
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Preview</title>
-    <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin-top: 1em;
-        }
-        th, td {
-            border: 1px solid #aaa;
-            padding: 6px 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f0f0f0;
-        }
-        small {
-            font-size: 0.8em;
-            color: gray;
-        }
-    </style>
+    <title>Preview File</title>
+    <link rel="stylesheet" href="{% static 'css/uikit.min.css' %}">
 </head>
 <body>
-    <h2>Preview of {{ file.file.name|cut:"uploads/" }}</h2>
 
-    {% if error %}
-        <p style="color:red;">Error: {{ error }}</p>
-    {% endif %}
+<section class="uk-section uk-section-muted">
+    <div class="uk-container">
 
-    {% if sheet_names %}
-        <form method="get">
-            <label for="sheet">Sheet:</label>
-            <select name="sheet" id="sheet">
-                {% for name in sheet_names %}
-                    <option value="{{ name }}" {% if name == selected_sheet %}selected{% endif %}>
-                        {{ name }}
-                    </option>
-                {% endfor %}
-            </select>
+        <h1 class="uk-heading-line uk-text-center"><span>CSV to Script</span></h1>
 
-            &nbsp;&nbsp;
-            <label>
-                <input type="checkbox" name="trim" {% if trim %}checked{% endif %} onchange="this.form.submit()">
-                Trim Whitespace
-            </label>
+        <div class="uk-card uk-card-default uk-card-hover uk-card-small uk-width-1-1@m uk-margin-auto">
+            <div class="uk-card-header">
+                <h3 class="uk-card-title">Data Preview</h3>
+            </div>
 
-            <button type="submit">Apply</button>
-        </form>
-    {% endif %}
+            <div class="uk-card-body">
+                {% if error %}
+                    <div class="uk-alert-danger" uk-alert>
+                        <p>{{ error }}</p>
+                    </div>
+                {% endif %}
 
-    {% if rows %}
-        <h3>Data Preview</h3>
-        <table>
-            <thead>
-                <tr>
-                    {% for col in columns %}
-                        <th>
-                            {{ col }}<br>
-                            <small>{{ column_types|get_item:col }}</small>
-                        </th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for row in rows %}
-                    <tr>
-                        {% for col in columns %}
-                            <td>{{ row|get_item:col }}</td>
-                        {% endfor %}
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% endif %}
+                <h4 class="uk-text-bold">File: <span class="uk-text-primary">{{ file.file.name|cut:"uploads/" }}</span></h4>
 
-    <form method="post" action="{% url 'validate_file' file.id %}">
-        {% csrf_token %}
-        <h3>Column Validation Rules</h3>
-        <table>
-            <tr>
-                {% for col in columns %}
-                    <th>
-                        {{ col }}<br>
-                        <small>{{ column_types|get_item:col }}</small><br>
-                        <label>
-                            <input type="checkbox" name="required_columns" value="{{ col }}">
-                            Required
-                        </label>
-                    </th>
-                {% endfor %}
-            </tr>
-        </table>
-        <br>
-        <button type="submit">Validate Data</button>
-    </form>
+                {% if sheet_names %}
+                    <form method="get" class="uk-margin-small">
+                        <div class="uk-grid-small uk-child-width-auto uk-grid">
+                            <div>
+                                <label for="sheet" class="uk-form-label">Sheet:</label>
+                                <select name="sheet" id="sheet" class="uk-select uk-form-small">
+                                    {% for name in sheet_names %}
+                                        <option value="{{ name }}" {% if name == selected_sheet %}selected{% endif %}>{{ name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div>
+                                <label>
+                                    <input type="checkbox" name="trim" class="uk-checkbox" {% if trim %}checked{% endif %} onchange="this.form.submit()">
+                                    Trim Whitespace
+                                </label>
+                            </div>
+                            <div>
+                                <button type="submit" class="uk-button uk-button-default uk-button-small">Apply</button>
+                            </div>
+                        </div>
+                    </form>
+                {% endif %}
+
+                {% if columns and rows %}
+                    <div class="uk-overflow-auto uk-margin-top">
+                        <table class="uk-table uk-table-striped uk-table-hover uk-table-small">
+                            <thead>
+                                <tr>
+                                    {% for col in columns %}
+                                        <th>
+                                            {{ col }}
+                                            <br>
+                                            <small class="uk-text-muted">{{ column_types|get_item:col }}</small>
+                                        </th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in rows %}
+                                    <tr>
+                                        {% for col in columns %}
+                                            <td>{{ row|get_item:col }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Export format form -->
+                    <form method="post" action="{% url 'generate_script' file.id %}" class="uk-margin-top">
+                        {% csrf_token %}
+                        <div class="uk-grid-small uk-child-width-auto uk-grid">
+                            <div>
+                                <label class="uk-form-label" for="format">Export Format:</label>
+                                <select name="format" id="format" class="uk-select uk-form-small">
+                                    <option value="sql">SQL Script</option>
+                                    <option value="orm">ORM Code</option>
+                                    <option value="json">JSON</option>
+                                </select>
+                            </div>
+                            <div>
+                                <button type="submit" class="uk-button uk-button-primary uk-button-small">
+                                    Generate Script
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                {% else %}
+                    <div class="uk-alert-warning" uk-alert>
+                        <p>No data found in the selected sheet.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="uk-card-footer uk-text-center">
+                <small>Showing up to 10 rows from the selected sheet for preview.</small>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<script src="{% static 'js/uikit.min.js' %}"></script>
+<script src="{% static 'js/uikit-icons.min.js' %}"></script>
 </body>
 </html>

@@ -70,8 +70,7 @@ def select_sheet(request, file_id):
     uploaded_file = get_object_or_404(UploadedFile, id=file_id)
 
     # Clean base name for display
-    original_name = os.path.basename(uploaded_file.file.name)  # e.g., 'Facility_xls_RnCmDxI.xlsx'
-    base_name = original_name.rsplit('_', 1)[0]  # e.g., 'Facility_xls'
+    original_name = os.path.basename(uploaded_file.file.name)
 
     file_path = uploaded_file.file.path
 
@@ -85,8 +84,9 @@ def select_sheet(request, file_id):
             excel_file = pd.ExcelFile(file_path)
             df = excel_file.parse(sheet_name)
             
-            # Optionally, render the data frame for preview
-            return render(request, 'converter/preview.html', {'df': df, 'file': uploaded_file})
+            return JsonResponse({
+                'redirect_url': reverse('preview_file', kwargs={'file_id': uploaded_file.id})
+            })
         except Exception as e:
             return HttpResponse(f"Error parsing sheet: {str(e)}", status=500)
 
@@ -96,16 +96,10 @@ def select_sheet(request, file_id):
 
         context = {
             'file': uploaded_file,
-            'base_name': base_name,
+            'base_name': original_name,
             'sheets': sheet_names
         }
-
-        # Handle AJAX modal request
-        if request.GET.get('modal') == 'true':
-            return render(request, 'converter/select_sheet_modal.html', context)
-
-        # Fallback full-page view (if needed)
-        return render(request, 'converter/sheet_select.html', context)
+        return render(request, 'converter/select_sheet_modal.html', context)
 
 def preview_file(request, file_id):
     uploaded = get_object_or_404(UploadedFile, id=file_id)

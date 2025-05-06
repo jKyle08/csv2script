@@ -118,11 +118,17 @@
             type: 'POST',
             data: form.serialize(),
             success: function (response) {
-                // Replace the page body with sheet preview or redirect
-                $('body').html(response);  // You can replace this with preview.html directly
+                if (response.redirect_url) {
+                    // Redirect to the preview page
+                    window.location.href = response.redirect_url;
+                } else {
+                    console.error("Unexpected response:", response);
+                    alert("An unexpected error occurred. Please try again.");
+                }
             },
-            error: function () {
-                alert("Failed to load sheet preview.");
+            error: function (xhr) {
+                console.error("Error response:", xhr.responseText);
+                alert("Failed to load sheet preview. Please try again.");
             }
         });
     });
