@@ -184,6 +184,7 @@ def generate_script(request, file_id):
     file_path = uploaded.file.path
     selected_sheet = uploaded.sheet_name or None
     output_format = request.POST.get('format', 'sql')
+    table_or_model_name = request.POST.get('table_name')
 
     # Ensure the download path exists
     if not os.path.exists(DOWNLOAD_PATH):
@@ -200,12 +201,14 @@ def generate_script(request, file_id):
 
     # Generate the script based on the selected format
     if output_format == 'sql':
-        table_name = 'your_table_name'  # Replace with the actual table name
-        script = generate_sql_script(df, table_name)
+        if not table_or_model_name:
+            table_or_model_name = 'your_table_name'
+        script = generate_sql_script(df, table_or_model_name)
 
     elif output_format == 'orm':
-        model_name = 'YourModel'  # Replace with the actual model name
-        script = generate_orm_script(df, model_name)
+        if not table_or_model_name:
+            table_or_model_name = 'YourModel'
+        script = generate_orm_script(df, table_or_model_name)
 
     elif output_format == 'json':
         script = generate_json_script(df)
@@ -222,6 +225,7 @@ def generate_script(request, file_id):
         'format': output_format,
         'download_url': f"/converter/download/{filename}",
         'file': uploaded,
+        'table_name_used': table_or_model_name,
     })
 
 def download_script(request, filename):
