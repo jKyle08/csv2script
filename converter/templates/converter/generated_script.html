@@ -41,6 +41,9 @@
 
             <div class="uk-card-footer uk-text-meta">
                 <p><strong>File:</strong> {{ file.file.name }}</p>
+                {% if table_name_used and format != 'json' %}
+                <p><strong>Table/Model Name Used:</strong> {{ table_name_used }}</p>
+                {% endif %}
             </div>
         </div>
 

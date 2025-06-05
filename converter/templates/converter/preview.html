@@ -83,6 +83,10 @@
                         {% csrf_token %}
                         <div class="uk-grid-small uk-child-width-auto uk-grid">
                             <div>
+                                <label for="table_name">Table/Model Name:</label>
+                                <input type="text" name="table_name" id="table_name" class="uk-input uk-form-small" placeholder="Enter name" required>
+                            </div>
+                            <div>
                                 <label class="uk-form-label" for="format">Export Format:</label>
                                 <select name="format" id="format" class="uk-select uk-form-small">
                                     <option value="sql">SQL Script</option>
