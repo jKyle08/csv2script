@@ -141,7 +141,6 @@ def preview_file(request, file_id):
         'column_types': column_types
     })
 
-@csrf_exempt
 def validate_file_view(request, file_id):
     # Get the uploaded file object using the file_id
     uploaded = get_object_or_404(UploadedFile, id=file_id)
@@ -176,8 +175,6 @@ def validate_file_view(request, file_id):
             'column_types': {},
         })
 
-
-@csrf_exempt
 def generate_script(request, file_id):
     # Get the uploaded file object using the file_id
     uploaded = get_object_or_404(UploadedFile, id=file_id)
