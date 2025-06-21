@@ -47,10 +47,6 @@ This Django web application allows users to upload CSV or Excel files, preview t
 - For Excel files, you can select which sheet to process.
 - Validation checks for required and unique columns before script generation.
 
-## License
-
-MIT License
-
 ---
 
 *Made with Django
